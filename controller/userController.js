@@ -398,6 +398,43 @@ extensionD(req, res){
 
     },
 
+    restriccion(req, res) {
+
+        const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
+        //***/// */
+        User.consultid(user, (err, data) => {
+
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con la actualisacion del usuario',
+                    error: err
+                });
+            }
+           const id = req.body.id;
+        
+         User.restriccion(id, (err,myData)=>{
+
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con la actualisacion del usuario',
+                    error: err
+                });
+            }
+            return res.status(201).json({
+                success: true,
+                message: 'Se actualizo correctamente',
+                data: myData// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+            });
+        })
+
+        });
+
+    },
+
+   
+    
 
     ///////*********** */
     updateN(req, res) {
@@ -469,6 +506,7 @@ extensionD(req, res){
     },
 
    
+ 
 
     
 

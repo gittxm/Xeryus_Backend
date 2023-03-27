@@ -14,7 +14,7 @@ module.exports = (app) =>{
     app.post('/api/users/contratos', userController.contratos);
     app.put('/api/users/update', userController.update);
     app.put('/api/users/updateN', userController.updateN);
-
+    app.put('/api/users/restriccion', userController.restriccion);
     
 }
 
