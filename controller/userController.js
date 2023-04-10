@@ -4,7 +4,13 @@ const jwt = require('jsonwebtoken');
 const keys = require('../config/keys')
 const mysql = require('mysql');
 const express = require('express');
-const createDataDbConnection =  require('../config/config');
+//const createDataDbConnection =  require('../config/config');
+const {x}= require('../config/config');
+const createDataDbConnection = require('../config/config');
+
+
+
+
 
 module.exports = {
     
@@ -48,8 +54,9 @@ login(req, res) {
                     image: myUser.image,
                     session_token: `JWT ${token}`
                 }
-
+                
                 return res.status(201).json({
+                    
                     success: true,
                     message: 'El usuario fue autenticado',
                     data: data // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
@@ -66,11 +73,32 @@ login(req, res) {
         });
 
     },
- 
     
+
+urls(req,res){
+    const urls = req.body.url;
+
+
+    console.log("url123----"+urls)
+    return res.status(200).json({
+        success: true,
+        url:urls,
+        message: 'correcto url',
+        
+    });
+
+},
+
+
 extension(req, res){
+    const urls = req.body.urls;
+            //const numero = req.body.numero;
+           var conect = createDataDbConnection({
+                host: urls,
+              });
+
     const id = req.body.id;
-    User.findByexten(id, async (err, myUser) => {
+    User.findByexten(conect,id, async (err, myUser) => {
         if (err) {
             return res.status(501).json({
                 success: false,
@@ -106,8 +134,14 @@ extension(req, res){
     },
 
 extensionD(req, res){
+    const urls = req.body.urls;
+    //const numero = req.body.numero;
+   var conect = createDataDbConnection({
+        host: urls,
+      });
+
         const id = req.body.id;
-        User.findByextenD(id, async (err, myUser) => {
+        User.findByextenD(conect,id, async (err, myUser) => {
             if (err) {
                 return res.status(501).json({
                     success: false,
@@ -143,80 +177,84 @@ extensionD(req, res){
       
         },
    
+login2(req, res) {
+
+            const usuario = req.body.usuario;
+             const password = req.body.password;
+             const urls = req.body.urls;
+           var conect = createDataDbConnection({
+                host: urls,
+              });
+
+              
+
+             User.findByNombre(conect,usuario, async (err, myUser) => {
+                 
+                 console.log('Error ', err);
+                 console.log('USUARIO ', myUser);
+     
+                 if (err) {
+                     return res.status(501).json({
+                         success: false,
+                         message: 'Hubo un error con la busqueda de el numero',
+                         error: err
+                     });
+                 }
+     
+                 if (!myUser) {
+                     return res.status(401).json({ // EL CLIENTE NO TIENE AUTORIZACION PARTA REALIZAR ESTA PETICION (401)
+                         success: false,
+                         message: 'El USUARIO no fue encontrado'
+                     });
+                 }
+      //se nesecita quitar la contraseña para validar la fecha de vensimiento 
+                console.log(myUser.Password);
+                console.log(password)
+                // const isPasswordValid = await bcrypt.compare(password, myUser.Password);
+     
+                 if (password == myUser.Password) {
+                     const token = jwt.sign({id: myUser.id, email: myUser.email}, keys.secretOrKey, {});
+     
+                     const data = {
+                     id:    `${myUser.Id}`,
+                     nombre:   myUser.Nombre,
+                     alias:    myUser.Alias,
+                     password:    myUser.Password,
+                  cuentaCorreo:    myUser.CuentaCorreo,
+                    idioma:   `${myUser.Idioma}`,
+                    session_token: `JWT ${token}`
+                         
+                     }
+                    console.log(myUser.password)
+                     return res.status(201).json({
+                         success: true,
+                         message: 'El usuario fue autenticado',
+                         data: data // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+                     });
+     
+                 }
+                 else if(res.status = 401){
+                     return res.status(401).json({ // EL CLIENTE NO TIENE AUTORIZACION PARTA REALIZAR ESTA PETICION (401)
+                         success: false,
+                         message: 'El password es incorrecto'
+                     });
+                 }
+                 else {
+                    return res.status(500).json({
+                        success:false,
+                        message:'Error servicio'
+                    })
+                 }
+                 
+                 
+     
+             });
+     
+         },
+
+
+contratos(req, res) {
     
-
-    ///////////////////////////////////
-
-    login2(req, res) {
-
-        //respuesa de la bdd 
-          const numero = req.body.ext;
-           User.findByUser(usuario, async (err, myUser) => {
-               
-               console.log('Error ', err);
-               console.log('USUARIO ', myUser);
-   
-               if (err) {
-                   return res.status(501).json({
-                       success: false,
-                       message: 'Hubo un error con la busqueda de el numero',
-                       error: err
-                   });
-               }
-   
-               if (!myUser) {
-                   return res.status(401).json({ // EL CLIENTE NO TIENE AUTORIZACION PARTA REALIZAR ESTA PETICION (401)
-                       success: false,
-                       message: 'El email no fue encontrado'
-                   });
-               }
-    //se nesecita quitar la contraseña para validar la fecha de vensimiento 
-               const isPasswordValid = await bcrypt.compare(password, myUser.password);
-   
-               if (isPasswordValid) {
-                   const token = jwt.sign({id: myUser.id, email: myUser.email}, keys.secretOrKey, {});
-   
-                   const data = {
-                          id:myUser.id,
-                            numero:myUser.Numero,
-                          producto:myUser.producto,
-                           cliente:myUser.cliente,
-                           horario:myUser.horario,
-                   fechaExpiracion:myUser.fechaExpiracion,
-                   telefonoSoporte:myUser.telefonoSoporte,
-                          contacto:myUser.contacto,
-                              area:myUser.area,
-                     fechaRegistro:myUser.fechaRegistro,
-                 fechaModificacion:myUser.fechaModificacion,
-                 Url:myUser.Url,
-                 session_token: `JWT ${token}`
-                   }
-                   
-   
-                   return res.status(201).json({
-                       success: true,
-                       message: 'El usuario fue autenticado',
-                       data: data // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
-                   });
-   
-               }
-               else {
-                   return res.status(401).json({ // EL CLIENTE NO TIENE AUTORIZACION PARTA REALIZAR ESTA PETICION (401)
-                       success: false,
-                       message: 'El password es incorrecto'
-                   });
-               }
-   
-           });
-   
-       },
-
-
-
-
-
-
-       contratos(req, res) {
 
         const numero = req.body.num;
         //const fechaE = req.body.FechaExpiracion;
@@ -227,7 +265,7 @@ extensionD(req, res){
         const  year= fechas.getFullYear;
         const month= fechas.getDate;
         const day= fechas.getDay;
-     const fecha = year +'/'+month+'/'+day
+        const fecha = year +'/'+month+'/'+day
 
        
 
@@ -235,7 +273,7 @@ extensionD(req, res){
             
             console.log('Error findNumber', err);
             console.log('USUARIO ', myUser);
-            console.log('url',myUser.Url)
+           // console.log('url',myUser.Url ?? "")
             //console.log('USUARIO ', myUser.FechaExpiracion);
 
             if (err) {
@@ -279,23 +317,31 @@ extensionD(req, res){
 
                     session_token: `JWT ${token}` }
                 
-                console.log('url201',myUser.Url)
-    
-                const dataDbConnection = createDataDbConnection({
-                    host: myUser.Url        
-                  });
+              //  console.log('url201',myUser.Url)
+          //   module.exports.createDataDbConnection =  createDataDbConnection({
+            //    host: myUser.Url,
+            //  });
 
+              
+        
+              //console.log(createDataDbConnections)
+            
+             // console.log("STATUS BDD", dataDbConnection);
+       
+           
                 //  dataDbConnection.connect();
                 return res.status(201).json({
                     success: true,
                     message: 'Numero autentificado',
-                    data: data 
+                    flag:x,
+                    data: data ,
+
                     // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
                 });
                
 
             }
-            else {
+            else if (res.status =401){
                 console.log('Error ', myUser.FechaExpiracion);
                 console.log('Error ', fechas);
                 console.log('fecha de hoy', typeof fechas)
@@ -306,17 +352,28 @@ extensionD(req, res){
                     message: 'Fecha expirada',
                     message: fecha
                 }
+
                 );
                 
             }
+            else if(res.status = 500) {
+             console.log('error 5000')
+             return res.status(500).json({
+                success: false,
+                    message: 'Error en el server',
+                    message: fecha
+             })
+
+            }
+            
 
         });
 
+        
+
     },
 
-
-
-    async getDbDetails(req, res) {
+async getDbDetails(req, res) {
 
         const numero = req.body.num;
         //const fechaE = req.body.FechaExpiracion;
@@ -361,13 +418,16 @@ extensionD(req, res){
         });
 
     },
-
-      
-    update(req, res) {
+   
+   update(req, res) {
 
         const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
-        //***/// */
-        User.update(user, (err, data) => {
+        const urls = req.body.urls;
+        console.log("urls:",urls)
+        var conect = createDataDbConnection({
+            host: urls,
+          });
+        User.update(conect,user, (err, data) => {
 
             if (err) {
                 return res.status(501).json({
@@ -378,7 +438,7 @@ extensionD(req, res){
             }
            const id = req.body.id;
         
-         User.findByextenD(id, (err,myData)=>{
+         User.findByextenD(conect,id, (err,myData)=>{
 
             if (err) {
                 return res.status(501).json({
@@ -400,49 +460,80 @@ extensionD(req, res){
 
     restriccion(req, res) {
 
-        const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
-        //***/// */
-        User.consultid(user, (err, data) => {
+        const user = req.body.Extension; 
+        const urls = req.body.urls;
+        console.log("urls:",urls)
+        var conect = createDataDbConnection({
+            host: urls,
+          });// CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
+        console.log("22222",user)
+         //***/// */
+         User.consultid(conect,user, (err, myData) => {
+ 
+             if (err) {
+                 return res.status(501).json({
+                     success: false,
+                     message: 'Hubo un error con la actualisacion del usuario',
+                     error: err
+                 });
+             }
+     
+            else{
+             const id = myData.Id;
+             console.log(id)
+                 const data = {
+                    
+                     Id: `${myData.id}`,
+                     Nombre: myData.Nombre,
+                     //session_token: `JWT ${token}`
+                      }  
+ 
+                 console.log("mi datas",myData.Id)
+                 User.restriccion(conect,id, (err,myDatas)=>{
+ 
+                     if (err) {
+                         return res.status(501).json({
+                             success: false,
+                             message: 'Hubo un error busqueda prefijo',
+                             error: err
+                         });
+                     }else{
+                         const data2 = {
+                    
+                            Prefijo: `${myDatas.Prefijo}`,
+                            
+                             //session_token: `JWT ${token}`
+                              }  
+                              console.log("121",myDatas.Prefijo)
+                              console.log(data2)
+                     return res.status(201).json({
+                         
+                         success: true,
+                         message: 'funciona oki',
+                         data: data2// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+                     });}
+                 })
+            
+            
+             
+         }
+             
+         })
+ 
+     
+ 
+     },
 
-            if (err) {
-                return res.status(501).json({
-                    success: false,
-                    message: 'Hubo un error con la actualisacion del usuario',
-                    error: err
-                });
-            }
-           const id = req.body.id;
-        
-         User.restriccion(id, (err,myData)=>{
-
-            if (err) {
-                return res.status(501).json({
-                    success: false,
-                    message: 'Hubo un error con la actualisacion del usuario',
-                    error: err
-                });
-            }
-            return res.status(201).json({
-                success: true,
-                message: 'Se actualizo correctamente',
-                data: myData// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
-            });
-        })
-
-        });
-
-    },
-
-   
-    
 
     ///////*********** */
     updateN(req, res) {
-
-        
+        const urls = req.body.urls;
+        var conect = createDataDbConnection({
+             host: urls,
+           });
 
         const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
-        User.updateN(user, (err, data) => {
+        User.updateN(conect,user, (err, data) => {
       
             if (err) {
                 return res.status(501).json({
@@ -451,9 +542,11 @@ extensionD(req, res){
                     error: err
                 });
             }
-
-            User.findByextenD(data, (err,data)=>{
-
+            const urls = req.body.urls;
+            var conect = createDataDbConnection({
+                host: urls,
+              });
+            User.findByextenD(conect,data, (err,data)=>{
 
             if (err) {
                 return res.status(501).json({
@@ -463,8 +556,6 @@ extensionD(req, res){
                 });
             }
 
-           
-    
                 return res.status(201).json({
                     success: true,
                     message: 'Se actualizo correctamente',

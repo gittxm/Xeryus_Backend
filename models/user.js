@@ -1,13 +1,23 @@
-const { db,db2} = require('../config/config');
+const { db} = require('../config/config');
+//const {db2}= require('../config/config');
 const bcrypt = require('bcryptjs');
-
+const mysql = require('mysql');
+//const db2 = require('');
+//const { dataDbConnection } = require('../controller/userController.js');
+ const y = require('../controller/userController.js');
+const userController = require('../controller/userController.js');
+const dbConnection = userController.getDataDbConnection;
+const createDataDbConnection=require('../config/config')
 const User = {};
 
 
 
+
+
+
 //////////
-//login Number
-    User.findByNumber = (num, result) => {
+//login Number Numero de contrato 
+User.findByNumber = (num, result) => {
 
     const sql = `
     SELECT
@@ -28,7 +38,8 @@ const User = {};
     WHERE
         Numero = ?
     `;
-
+   
+   //console.log('value DB2 ..',db2)
     db.query(
         sql,
         [num],
@@ -38,14 +49,16 @@ const User = {};
                 result(err, null);
             }
             else {
-                console.log('Usuario obtenido:', user[0]);
+               //console.log("ubases de datos",createDataDbConnection)
+            
                 result(null, user[0]);
             }
         }
     )
 
 }
-    User.findByNombre = (user, result) => {
+    
+User.findByNombre = (db2,user, result) => {
 
     const sql = `
     SELECT
@@ -60,6 +73,8 @@ const User = {};
     WHERE
         Alias = ?
     `;
+    //console.log('value y:' ,y);
+    //console.log('aqui' + DB2)
     db2.query(
         sql,
         [user],
@@ -69,7 +84,7 @@ const User = {};
                 result(err, null);
             }
             else {
-                console.log('Usuario obtenido:', user[0]);
+                console.log('Usuario obtenido1:', user[0]);
                 result(null, user[0]);
             }
         }
@@ -77,7 +92,7 @@ const User = {};
 }
 
 
-    User.findByexten = (num, result) => {
+User.findByexten = (db2,num, result) => {
 
     const sql = `
     SELECT Numero,Usuario,UsuarioExtension
@@ -99,14 +114,15 @@ const User = {};
                 result(err, null);
             }
             else {
-                console.log('Usuario obtenido:', user[0]);
+                console.log('Usuario obtenido2:', user[0]);
                 result(null, user[0]);
             }
         }
     )
 
 }
-    User.findByextenD = (num, result) => {
+
+User.findByextenD = (db2,num, result) => {
 
     const sql = `
     SELECT Extension,EstadoExtension,NumeroDestino,TipoDesvio
@@ -128,7 +144,7 @@ const User = {};
                 result(err, null);
             }
             else {
-                console.log('Usuario obtenido:', user[0]);
+                console.log('Usuario obtenido3:', user[0]);
                 result(null, user[0]);
             }
         }
@@ -136,7 +152,7 @@ const User = {};
 
 }
 
-    User.update = (user, result) => {
+User.update = (db2,user, result) => {
 
     const sql = `
     UPDATE DesviosExtension
@@ -159,7 +175,7 @@ const User = {};
                 result(err, null);
             }
             else {
-                console.log('Usuario actualisado:', user.id);
+                console.log('Usuario actualisado 1:', user.id);
                 result(null, user.id);
             }
         }
@@ -167,7 +183,7 @@ const User = {};
 
 }
 
-    User.updateN = (user, result) => {
+User.updateN = (db2,user, result) => {
 
     const sql = `
     UPDATE DesviosExtension
@@ -190,7 +206,7 @@ const User = {};
                 result(err, null);
             }
             else {
-                console.log('Usuario actualisado:', user.id);
+                console.log('Usuario actualisado2:', user.id);
                 result(null, user.id);
             }
         }
@@ -199,7 +215,7 @@ const User = {};
 }
 
 
-User.consultid= (user, result) => {
+User.consultid= (db2,user, result) => {
 
     const sql = `
     Select c.Id, c.Nombre, c.MarcacionClave, c.MarcacionClaveSecundario
@@ -210,41 +226,39 @@ User.consultid= (user, result) => {
 
     db2.query(
         sql,
-        [user.NumeroDestino,
-        user.id],
+        [user],
          (err, user) => {
             if (err) {
-                console.log('Error al actualisar:', err);
+                console.log('IDerror:', err);
                 result(err, null);
             }
             else {
-                console.log('Usuario actualisado:', user.id);
-                result(null, user.id);
+                console.log('idok:', user[0]);
+                result(null, user[0]);
             }
         }
     )
 
 }
 
-User.restriccion=(user,result)=>{
+User.restriccion=(db2,id,result)=>{
     const sql = `
-    Select p.Id, p.Prefijo, p.Patron, p.Prioridad, p.PrioridadCanales, g.Numero, g.Tipo, tg.Nombre, g.Alias, g.Contexto, g.ProveedorTelefonia, pt.Nombre From Permisos p, GruposTroncales g, TiposGruposTroncales tg, ProveedoresTelefonia pt 
-     Where p.Categoria = ? 
-    And g.Numero=p.NumeroGrupoTroncales And g.Tipo = p.TipoGrupoTroncales And g.Tipo = tg.Id And g.ProveedorTelefonia = pt.Id Order By Prioridad
+    Select Prefijo, Patron, Prioridad, PuertoGatewaySIP, p.Alias, p.Extension, DTMF, d.Descripcion, Contexto, p.GatewaySIP, p.Autentificacion, p.Tipo, t.Descripcion, p.NumeroCanales, g.Alias, DireccionIP, g.Descripcion, g.Tipo, tg.Descripcion, p.ProveedorTelefonia, pt.Nombre, p.DID From Permisos, PuertosGatewaySIP p, TiposPuertoGatewaySIP t, GatewaysSIP g, TiposGatewaySIP tg, DTMFs d, ProveedoresTelefonia pt 
+    Where Categoria = ?
+     And DTMF = d.Id And p.GatewaySIP=g.Id And PuertoGatewaySIP = p.Id And p.Tipo = t.Id And g.Tipo = tg.Id And p.ProveedorTelefonia = pt.Id Order By Prioridad
     `;
-
+//onsole.log("prefijo",id.Prefijo)
     db2.query(
         sql,
-        [user.Prefijo,
-        user.id],
-         (err, user) => {
+        [id],
+         (err, id) => {
             if (err) {
                 console.log('no se encuentra la restriccion', err);
                 result(err, null);
             }
             else {
-                console.log('restriccion encontrada', user.id);
-                result(null, user.id);
+                console.log('restriccion encontrada', id[0]);
+                result(null, id[0]);
             }
         }
     )
@@ -277,7 +291,7 @@ User.restriccion=(user,result)=>{
 	
     `;
 
-    db.query(
+    db2.query(
         sql,
         [num],
          (err, user) => {
@@ -286,7 +300,7 @@ User.restriccion=(user,result)=>{
                 result(err, null);
             }
             else {
-                console.log('Usuario obtenido:', user[0]);
+                console.log('Usuario obtenido4:', user[0]);
                 result(null, user[0]);
             }
         }
@@ -302,7 +316,7 @@ User.restriccion=(user,result)=>{
 	
     `;
 
-    db.query(
+    db2.query(
         sql,
         [num],
          (err, user) => {
@@ -311,7 +325,7 @@ User.restriccion=(user,result)=>{
                 result(err, null);
             }
             else {
-                console.log('Usuario obtenido:', user[0]);
+                console.log('Usuario obtenido5:', user[0]);
                 result(null, user[0]);
             }
         }
@@ -325,7 +339,7 @@ User.restriccion=(user,result)=>{
 	
     `;
 
-    db.query(
+    db2.query(
         sql,
         [num],
          (err, user) => {
@@ -348,7 +362,7 @@ User.restriccion=(user,result)=>{
 	
     `;
 
-    db.query(
+    db2.query(
         sql,
         [num],
          (err, user) => {
@@ -370,7 +384,7 @@ User.restriccion=(user,result)=>{
 	
     `;
 
-    db.query(
+    db2.query(
         sql,
         [num],
          (err, user) => {
@@ -399,7 +413,7 @@ User.restriccion=(user,result)=>{
 	
     `;
 
-    db.query(
+    db2.query(
         sql,
         [num],
          (err, user) => {
@@ -421,7 +435,7 @@ User.restriccion=(user,result)=>{
         Select DISTINCT NumeroDestino From DesviosExtension Where Extension=? And TipoDesvio= 2
     `;
 
-    db.query(
+    db2.query(
         sql,
         [num],
          (err, user) => {

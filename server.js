@@ -14,7 +14,7 @@ this is server
 
 const usersRoutes = require('./ROUTES/userRoutes');
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -43,7 +43,7 @@ usersRoutes(app);
 
 
 //192.168.1.104 casa  10.1.3.22 
-server.listen(5000, '192.168.1.74' || 'localhost', function() {
+server.listen(3000, '192.168.3.38' || 'localhost', function() {
     console.log('Aplicacion de NodeJS ' + port + ' Iniciada...')
 });
 
