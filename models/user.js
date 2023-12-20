@@ -7,7 +7,9 @@ const mysql = require('mysql');
  const y = require('../controller/userController.js');
 const userController = require('../controller/userController.js');
 const dbConnection = userController.getDataDbConnection;
-const createDataDbConnection=require('../config/config')
+const createDataDbConnection=require('../config/config');
+const { query } = require('express');
+const { extension } = require('../controller/userController.js');
 const User = {};
 
 
@@ -266,12 +268,171 @@ User.restriccion=(db2,id,result)=>{
 
 
 }
+User.modificarEstado=(db2,id,result)=>{
+    const sql = `
+    Update DireccionamientosEstadoUsuario 
+    Set Activo=0 
+    Where Extension= ?
+    
+
+    `; //cualquiera del 0 al 6 wl miamo para los dos querys
+//onsole.log("prefijo",id.Prefijo)
+    db2.query(
+        sql,
+        [id],
+         (err, id) => {
+            if (err) {
+                console.log('ERR', err);
+                result(err, null);
+            }
+            else {
+                console.log('Act', id[0]);
+                result(null, id[0]);
+            }
+        }
+    )
 
 
 
+}
+//wztwnaion 1011
+User.modificarEstado1=(db2,id,result)=>{
+    const sql = `
+    Update DireccionamientosEstadoUsuario 
+    Set Activo=1 
+    Where Extension=?
+    And Estado=?
+    `;
+//onsole.log("prefijo",id.Prefijo)
+    db2.query(
+        sql,
+        [
+         id.ext,
+         id.estado
+        ],
+         (err, id) => {
+            if (err) {
+                console.log('ERR', err);
+                result(err, null);
+            }
+            else {
+                console.log('act', id[0]);
+                result(null, id[0]);
+            }
+        }
+    )
 
 
 
+}
+
+User.selectEstados=(db2,result)=>{
+    const sql = `
+    select *  from EstadosUsuarioExtension
+    `;
+//onsole.log("prefijo",id.Prefijo)
+    db2.query(
+        sql,
+        [],
+         (err, id) => {
+            if (err) {
+                console.log('Actualisada', err);
+                result(err, null);
+            }
+            else {
+                console.log('No  encontrada', id[0]);
+                result(null, id[0]);
+            }
+        }
+    )
+
+
+
+}
+
+//const UPDATE_ESTADO_ACTIVO_USUARIO = 'UPDATE tabla SET estado_usuario_id = ? WHERE numero = ?';
+//const UPDATE_ESTADOS_DESACTIVADOS_USUARIO = 'UPDATE tabla SET estado_usuario_id = ? WHERE numero != ?';
+
+User.selectAll=(db2,id,result)=>{
+    const sql = `
+  SELECT d.Extension, d.Estado, e.Nombre, d.NumeroTelefonico, d.TipoNumeroTelefonico, d.Activo
+FROM DireccionamientosEstadoUsuario d, EstadosUsuarioExtension e, TiposNumeroTelefonico t
+WHERE d.Estado = e.Id
+And d.TipoNumeroTelefonico = t.Id
+And d.Extension= ?
+Order By d.Estado
+    `;
+//onsole.log("prefijo",id.Prefijo)
+    db2.query(
+        sql,
+        [id],
+         (err, id) => {
+            if (err) {
+                console.log('No encontrada', err);
+                result(err, null);
+            }
+            else {
+                console.log('Registros encontrados', id[0]);
+                result(null, id);
+            }
+        }
+    )
+
+
+
+}
+
+//Query para la actualización del estado de la dase de datos
+User.updateestados1=(db2,id,result)=>{
+    const sql = `
+    Update DireccionamientosEstadoUsuario 
+    Set Activo=1 
+    Where Extension=?
+    And Estado=?
+    `;
+    db2.query(
+        sql,
+        [
+         id.extension,
+         id.estado
+        ],
+         (err, id) => {
+            if (err) {
+                console.log('Error en la actualización', err);
+                result(err, null);
+            }
+            else {
+              console.log('Registro Actualizado 1', id[0]);
+                result(null, id[0]);
+
+            }
+        }
+    )
+
+}
+
+User.updateestados=(db2,id,result)=>{
+    const sql = `
+    UPDATE DireccionamientosEstadoUsuario 
+    SET Activo=0
+    WHERE Extension= ?
+    `;
+    db2.query(
+        sql,
+        [id],
+         (err, id) => {
+            if (err) {
+                console.log('Error en la actualización', err);
+                result(err, null);
+            }
+            else {
+                console.log('Registro Actualizado 0', id[0]);
+                result(null, id[0]);
+            }
+        }
+    )
+
+}
 
 
 
@@ -333,6 +494,7 @@ User.restriccion=(db2,id,result)=>{
     
 }
 
+//////
     User.DELETE_DESVIOS_EXTENSION=(num,res)=>
     {const sql = `
     DELETE FROM DesviosExtension WHERE Extension=?

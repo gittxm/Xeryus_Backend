@@ -17,6 +17,13 @@ module.exports = (app) =>{
     app.put('/api/users/restriccion', userController.restriccion);
     app.post('/api/users/restriccion', userController.restriccion);
     app.post('/api/users/urls', userController.urls);
+    app.post('/api/users/updateestados', userController.updateEstaRegistro)
+    app.post('/api/users/estados_select',userController.selectEstados);
+    //activo
+    app.post('/api/users/selectall',userController.selectAll);
+    app.put('/api/users/updateestados',userController.updateestados);
+
+    
 }
 
 

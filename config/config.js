@@ -14,11 +14,12 @@ const db = mysql.createConnection({
 });
 
 db.connect(function(err) {
-    if (err) throw err;
+    if (err){ 
+      throw err;
+    }else{
     console.log('DATABASE CONNECTED!' );
-    
- 
-});
+    }
+  });
 
 var createDataDbConnection = ({ host }) => {
     var hostPart = host.split(":");
@@ -40,9 +41,9 @@ var createDataDbConnection = ({ host }) => {
     
     return  db2;
   };
-  
+
   module.exports = createDataDbConnection;
- 
+
   module.exports.db = db;
 //async function connectToDatabase() {
 //console.log(contratos);

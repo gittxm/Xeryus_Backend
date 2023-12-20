@@ -419,7 +419,7 @@ async getDbDetails(req, res) {
 
     },
    
-   update(req, res) {
+update(req, res) {
 
         const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
         const urls = req.body.urls;
@@ -458,7 +458,8 @@ async getDbDetails(req, res) {
 
     },
 
-    restriccion(req, res) {
+restriccion(req, res) {
+        
 
         const user = req.body.Extension; 
         const urls = req.body.urls;
@@ -526,14 +527,14 @@ async getDbDetails(req, res) {
 
 
     ///////*********** */
-    updateN(req, res) {
+updateN(req, res) {
         const urls = req.body.urls;
         var conect = createDataDbConnection({
              host: urls,
            });
 
         const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
-        User.updateN(conect,user, (err, data) => {
+        User.updateN(conect,user,(err,data) => {
       
             if (err) {
                 return res.status(501).json({
@@ -546,7 +547,7 @@ async getDbDetails(req, res) {
             var conect = createDataDbConnection({
                 host: urls,
               });
-            User.findByextenD(conect,data, (err,data)=>{
+            User.findByextenD(conect,data,(err,data)=>{
 
             if (err) {
                 return res.status(501).json({
@@ -573,7 +574,7 @@ async getDbDetails(req, res) {
             
             
 
-    register(req, res) {
+register(req, res) {
 
         const user = req.body.EstadoExtension; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
         User.create(user, (err, data) => {
@@ -597,8 +598,151 @@ async getDbDetails(req, res) {
     },
 
    
- 
+    //saber que es el valor que tioene que recibir la consulta  
+    updateEstaRegistro(req, res) {
 
+        const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
+        const urls = req.body.urls;
+        const ext = req.body.ext;
+        const estado =req.body.estado;
+        console.log("ext",ext);
+        console.log("estado",estado)
+        console.log("")
+        //console.log("urls:",urls)
+        var conect = createDataDbConnection({
+            host: urls,
+          });
+        User.modificarEstado(conect,ext,(err, data) => {
+
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con la actualisacion del usuario',
+                    error: err
+                });
+            }
+           const id = req.body;
+        
+         User.modificarEstado1(conect,id, (err,myData)=>{
+
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con la actualisacion del usuario',
+                    error: err
+                });
+            }
+            return res.status(201).json({
+                success: true,
+                message: 'Se actualizo correctamente',
+                data: myData// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+            });
+        })
+
+        });
+
+    },
+   
+   //
+   selectEstados(req, res) {
+
+    const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
+    const urls = req.body.urls;
+    console.log("urls:",urls)
+    var conect = createDataDbConnection({
+        host: urls,
+      });
     
+    
+     User.selectEstados(conect, (err,myData)=>{
+
+        if (err) {
+            return res.status(501).json({
+                success: false,
+                message: 'Hubo un error con la actualisacion del usuario',
+                error: err
+            });
+        }
+        return res.status(201).json({
+            success: true,
+            message: 'Se actualizo correctamente',
+            data: myData// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+        });
+    })
+
+
+},
+
+selectAll(req, res) {
+
+    const  id = req.body.id; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
+    const urls = req.body.urls;
+    console.log("urls:",urls)
+    var conect = createDataDbConnection({
+        host: urls,
+      });
+    
+     User.selectAll(conect,id, (err,myData)=>{
+
+        if (err) {
+            return res.status(501).json({
+                success: false,
+                message: 'Hubo un error No muestra Estados',
+                error: err
+            });
+        }
+        return res.status(201).json({
+            success: true,
+            message: 'Estados Extencion',
+            data: myData// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+        });
+    })
+
+
+},
+
+//Función para realizar la actualización 
+updateestados(req, res){
+    const user = req.body;
+    const urls = req.body.urls;
+    const extension = req.body.extension;
+    const estado = req.body.estado;
+    console.log("extension",extension);
+    console.log("estado",estado)
+    console.log("")
+    //Crear la conexión en la base de datos
+    var conect = createDataDbConnection({
+        host: urls,
+      });
+    User.updateestados(conect,extension,(err, data) => {
+
+        if (err) {
+            return res.status(501).json({
+                success: false,
+                message: 'Hubo un error con la actualización del estado',
+                error: err
+            });
+        }
+       const id = req.body;
+    
+     User.updateestados1(conect,id, (err, myData)=>{
+
+        if (err) {
+            return res.status(501).json({
+                success: false,
+                message: 'Hubo un error con la actualización del estado',
+                error: err
+            });
+        }
+        return res.status(201).json({
+            success: true,
+            message: 'La actualización se realizo correctamente',
+            data: myData,  // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+        });
+    })
+
+    });
+
+},
 
 }
