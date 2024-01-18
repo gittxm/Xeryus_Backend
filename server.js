@@ -43,7 +43,7 @@ usersRoutes(app);
 
 
 //192.168.1.104 casa  10.1.3.22 
-server.listen(3000, '192.168.3.72' || 'localhost', function() {
+server.listen(3000, '192.168.3.71' || 'localhost', function() {
     console.log('Aplicacion de NodeJS ' + port + ' Iniciada...')
 });
 
