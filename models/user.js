@@ -59,7 +59,7 @@ User.findByNumber = (num, result) => {
     )
 
 }
-    
+//login2 Usuario & Contraseña   
 User.findByNombre = (db2,user, result) => {
 
     const sql = `
@@ -95,12 +95,10 @@ User.findByNombre = (db2,user, result) => {
 
 
 User.findByexten = (db2,num, result) => {
-
+    console.log('nummm:', num);
     const sql = `
     SELECT Numero,Usuario,UsuarioExtension
         FROM Extensiones 
-            INNER JOIN DesviosExtension 
-            ON Extensiones.Numero = DesviosExtension.Extension
             INNER JOIN UsuariosExtension
             ON UsuariosExtension.id = Extensiones.UsuarioExtension
             where UsuariosExtension.id = ?
@@ -124,22 +122,19 @@ User.findByexten = (db2,num, result) => {
 
 }
 
-User.findByextenD = (db2,num, result) => {
-
+User.findByextenD = (db2,Extension, result) => {
+    
     const sql = `
-    SELECT Extension,EstadoExtension,NumeroDestino,TipoDesvio
-        FROM DesviosExtension 
-            INNER JOIN Extensiones 
-            ON Extensiones.Numero = DesviosExtension.Extension
-            INNER JOIN UsuariosExtension
-            ON UsuariosExtension.id = Extensiones.UsuarioExtension
-            where UsuariosExtension.id = ?
-	
+    SELECT d.Extension, d.Estado, e.Nombre, d.NumeroTelefonico, d.TipoNumeroTelefonico, t.Nombre, d.Activo 
+    FROM DireccionamientosEstadoUsuario d, EstadosUsuarioExtension e, TiposNumeroTelefonico t 
+    WHERE d.Estado = e.Id And d.TipoNumeroTelefonico = t.Id 
+    And d.Extension=?
+    And d.Activo=1
     `;
 
     db2.query(
         sql,
-        [num],
+        [Extension],
          (err, user) => {
             if (err) {
                 console.log('Error 1:', err);
@@ -153,8 +148,9 @@ User.findByextenD = (db2,num, result) => {
     )
 
 }
+ 
 
-User.update = (db2,user, result) => {
+/* User.update = (db2,user, result) => {
 
     const sql = `
     UPDATE DesviosExtension
@@ -183,9 +179,10 @@ User.update = (db2,user, result) => {
         }
     )
 
-}
+} */
 
-User.updateN = (db2,user, result) => {
+
+/*  User.updateN = (db2,user, result) => {
 
     const sql = `
     UPDATE DesviosExtension
@@ -214,10 +211,10 @@ User.updateN = (db2,user, result) => {
         }
     )
 
-}
+}  */
 
 
-User.consultid= (db2,user, result) => {
+ User.consultid= (db2,user, result) => {
 
     const sql = `
     Select c.Id, c.Nombre, c.MarcacionClave, c.MarcacionClaveSecundario
@@ -241,9 +238,9 @@ User.consultid= (db2,user, result) => {
         }
     )
 
-}
+} 
 
-User.restriccion=(db2,id,result)=>{
+ User.restriccion=(db2,id,result)=>{
     const sql = `
     Select Prefijo, Patron, Prioridad, PuertoGatewaySIP, p.Alias, p.Extension, DTMF, d.Descripcion, Contexto, p.GatewaySIP, p.Autentificacion, p.Tipo, t.Descripcion, p.NumeroCanales, g.Alias, DireccionIP, g.Descripcion, g.Tipo, tg.Descripcion, p.ProveedorTelefonia, pt.Nombre, p.DID From Permisos, PuertosGatewaySIP p, TiposPuertoGatewaySIP t, GatewaysSIP g, TiposGatewaySIP tg, DTMFs d, ProveedoresTelefonia pt 
     Where Categoria = ?
@@ -267,8 +264,9 @@ User.restriccion=(db2,id,result)=>{
 
 
 
-}
-User.modificarEstado=(db2,id,result)=>{
+} 
+
+/* User.modificarEstado=(db2,id,result)=>{
     const sql = `
     Update DireccionamientosEstadoUsuario 
     Set Activo=0 
@@ -294,9 +292,10 @@ User.modificarEstado=(db2,id,result)=>{
 
 
 
-}
+} */
 //wztwnaion 1011
-User.modificarEstado1=(db2,id,result)=>{
+
+/* User.modificarEstado1=(db2,id,result)=>{
     const sql = `
     Update DireccionamientosEstadoUsuario 
     Set Activo=1 
@@ -324,7 +323,7 @@ User.modificarEstado1=(db2,id,result)=>{
 
 
 
-}
+} */
 
 User.selectEstados=(db2,result)=>{
     const sql = `
@@ -348,21 +347,21 @@ User.selectEstados=(db2,result)=>{
 
 
 
-}
+} 
 
 //const UPDATE_ESTADO_ACTIVO_USUARIO = 'UPDATE tabla SET estado_usuario_id = ? WHERE numero = ?';
 //const UPDATE_ESTADOS_DESACTIVADOS_USUARIO = 'UPDATE tabla SET estado_usuario_id = ? WHERE numero != ?';
-
-User.selectAll=(db2,id,result)=>{
+//Query para consulta de tabla información de usuario
+User.selectAll=(db2,id, result)=>{
     const sql = `
   SELECT d.Extension, d.Estado, e.Nombre, d.NumeroTelefonico, d.TipoNumeroTelefonico, d.Activo
 FROM DireccionamientosEstadoUsuario d, EstadosUsuarioExtension e, TiposNumeroTelefonico t
 WHERE d.Estado = e.Id
 And d.TipoNumeroTelefonico = t.Id
-And d.Extension= ?
+And d.Extension = ?
 Order By d.Estado
     `;
-//onsole.log("prefijo",id.Prefijo)
+
     db2.query(
         sql,
         [id],
@@ -382,19 +381,19 @@ Order By d.Estado
 
 }
 
-//Query para la actualización del estado de la dase de datos
-User.updateestados1=(db2,id,result)=>{
+//Query para la actualización del estado Activo 0
+User.updateestados1=(db2,ext,estado, result)=>{
     const sql = `
-    Update DireccionamientosEstadoUsuario 
-    Set Activo=1 
+    Update DireccionamientosEstadoUsuario
+    Set Activo=0
     Where Extension=?
-    And Estado=?
+     And Estado <> ? 
     `;
+    console.log('Parametros:',[ext,estado]);
     db2.query(
         sql,
         [
-         id.extension,
-         id.estado
+            ext,estado
         ],
          (err, id) => {
             if (err) {
@@ -402,7 +401,7 @@ User.updateestados1=(db2,id,result)=>{
                 result(err, null);
             }
             else {
-              console.log('Registro Actualizado 1', id[0]);
+              console.log('Registro Actualizado 0', id[0]);
                 result(null, id[0]);
 
             }
@@ -410,33 +409,35 @@ User.updateestados1=(db2,id,result)=>{
     )
 
 }
-
-User.updateestados=(db2,id,result)=>{
+//Query para la actualización del estado Activo 1
+User.updateestados=(db2,ext1,estado1, result)=>{
     const sql = `
-    UPDATE DireccionamientosEstadoUsuario 
-    SET Activo=0
-    WHERE Extension= ?
+    Update DireccionamientosEstadoUsuario
+    Set Activo=1
+    Where Extension=?
+    And Estado=?
     `;
+    console.log('Parametros2:',[ext1,estado1]);
     db2.query(
         sql,
-        [id],
+        [ext1,estado1],
          (err, id) => {
             if (err) {
                 console.log('Error en la actualización', err);
                 result(err, null);
             }
             else {
-                console.log('Registro Actualizado 0', id[0]);
+                console.log('Registro Actualizado 1', id[0]);
                 result(null, id[0]);
             }
         }
     )
 
-}
+} 
 
 
 
-
+            
     User.select_desvios_ext=(num,res) =>{
     const sql = `
     "SELECT d.Extension
@@ -494,7 +495,7 @@ User.updateestados=(db2,id,result)=>{
     
 }
 
-//////
+
     User.DELETE_DESVIOS_EXTENSION=(num,res)=>
     {const sql = `
     DELETE FROM DesviosExtension WHERE Extension=?

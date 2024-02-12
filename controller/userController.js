@@ -24,6 +24,7 @@ login(req, res) {
             
             console.log('Error ', err);
             console.log('USUARIO ', myUser);
+            console.log('numeroooo',numero);
 
             if (err) {
                 return res.status(501).json({
@@ -133,16 +134,20 @@ extension(req, res){
   
     },
 
-extensionD(req, res){
+  extensionD(req, res){
     const urls = req.body.urls;
     //const numero = req.body.numero;
    var conect = createDataDbConnection({
         host: urls,
       });
+      
+        const Extension = req.body.Extension;
+        console.log('Extnsion:', Extension);
+        console.log('urls:', urls);
 
-        const id = req.body.id;
-        User.findByextenD(conect,id, async (err, myUser) => {
+        User.findByextenD(conect,Extension, async (err, myUser) => {
             if (err) {
+                console.log('Error al buscar:', err);
                 return res.status(501).json({
                     success: false,
                     message: 'Hubo un error con la busqueda de el numero',
@@ -151,21 +156,25 @@ extensionD(req, res){
             }
     
             if (!myUser) {
+                console.log('Usuario no encontrado:', err);
                 return res.status(401).json({ // EL CLIENTE NO TIENE AUTORIZACION PARTA REALIZAR ESTA PETICION (401)
                     success: false,
                     message: 'El USUARIO no fue encontrado'
                 });
+            
             }
-            else{
-    
+            else {
                 const data = {
-                        Extension: `${myUser.Extension}`,
-                    EstadoExtension:myUser.EstadoExtension,
-                    NumeroDestino:myUser.NumeroDestino,
-                    TipoDesvio:myUser.TipoDesvio
-                    //session_token: `JWT ${token}`
-                        
-                    }   
+                    Extension: `${myUser.Extension}`,
+                    Estado: myUser.Estado,
+                    Nombre: myUser.Nombre,
+                    NumeroTelefonico: myUser.NumeroTelefonico,
+                    TipoNumeroTelefonico: myUser.TipoNumeroTelefonico,
+                    Nombre: myUser.Nombre,
+                    Activo: myUser.Activo,
+            //session_token: `JWT ${token}`
+            }
+
                 return res.status(201).json({
                     success: true,
                     message: 'El usuario fue autenticado',
@@ -173,10 +182,9 @@ extensionD(req, res){
                 });
             }
         });
-    
-      
-        },
+     }, 
    
+
 login2(req, res) {
 
             const usuario = req.body.usuario;
@@ -458,7 +466,7 @@ update(req, res) {
 
     },
 
-restriccion(req, res) {
+ restriccion(req, res) {
         
 
         const user = req.body.Extension; 
@@ -467,7 +475,7 @@ restriccion(req, res) {
         var conect = createDataDbConnection({
             host: urls,
           });// CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
-        console.log("22222",user)
+        console.log("22222",user) 
          //***/// */
          User.consultid(conect,user, (err, myData) => {
  
@@ -524,10 +532,10 @@ restriccion(req, res) {
      
  
      },
-
+ 
 
     ///////*********** */
-updateN(req, res) {
+ updateN(req, res) {
         const urls = req.body.urls;
         var conect = createDataDbConnection({
              host: urls,
@@ -570,7 +578,7 @@ updateN(req, res) {
 
         });
 
-    },
+    }, 
             
             
 
@@ -595,11 +603,11 @@ register(req, res) {
 
         });
 
-    },
+    },  
 
    
     //saber que es el valor que tioene que recibir la consulta  
-    updateEstaRegistro(req, res) {
+     updateEstaRegistro(req, res) {
 
         const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
         const urls = req.body.urls;
@@ -641,7 +649,7 @@ register(req, res) {
 
         });
 
-    },
+    },  
    
    //
    selectEstados(req, res) {
@@ -671,7 +679,7 @@ register(req, res) {
     })
 
 
-},
+}, 
 
 selectAll(req, res) {
 
@@ -703,46 +711,45 @@ selectAll(req, res) {
 
 //Función para realizar la actualización 
 updateestados(req, res){
-    const user = req.body;
-    const urls = req.body.urls;
-    const extension = req.body.extension;
-    const estado = req.body.estado;
-    console.log("extension",extension);
-    console.log("estado",estado)
-    console.log("")
-    //Crear la conexión en la base de datos
-    var conect = createDataDbConnection({
-        host: urls,
-      });
-    User.updateestados(conect,extension,(err, data) => {
+        const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
+        const urls = req.body.urls;
+        const ext = req.body.Extension;
+        const estado =req.body.Estado;
+        console.log("ext",ext);
+        console.log("estado",estado)
+        console.log("")
+        var conect = createDataDbConnection({
+            host: urls,
+          });
+        User.updateestados1(conect,ext, estado, (err, data) => {
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con la actualisacion del usuario',
+                    error: err
+                });
+            }
+            const id = req.body;
+            const ext1 = req.body.Extension;
+        const estado1 =req.body.Estado;
+          User.updateestados(conect,ext1,estado1, (err,myData)=>{
 
-        if (err) {
-            return res.status(501).json({
-                success: false,
-                message: 'Hubo un error con la actualización del estado',
-                error: err
+            if (err) {
+                return res.status(501).json({
+                    success: false,
+                    message: 'Hubo un error con la actualisacion del usuario',
+                    error: err
+                });
+            }
+            return res.status(201).json({
+                success: true,
+                message: 'Se actualizo correctamente',
+                data: myData// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
             });
-        }
-       const id = req.body;
-    
-     User.updateestados1(conect,id, (err, myData)=>{
+        })
 
-        if (err) {
-            return res.status(501).json({
-                success: false,
-                message: 'Hubo un error con la actualización del estado',
-                error: err
-            });
-        }
-        return res.status(201).json({
-            success: true,
-            message: 'La actualización se realizo correctamente',
-            data: myData,  // EL ID DEL NUEVO USUARIO QUE SE REGISTRO
         });
-    })
 
-    });
-
-},
+    }, 
 
 }
