@@ -382,18 +382,21 @@ Order By d.Estado
 }
 
 //Query para la actualización del estado Activo 0
-User.updateestados1=(db2,ext,estado, result)=>{
+User.updateestados1=(db2,estado,estado2,ext, result)=>{
     const sql = `
-    Update DireccionamientosEstadoUsuario
-    Set Activo=0
-    Where Extension=?
-     And Estado <> ? 
+    UPDATE DireccionamientosEstadoUsuario 
+    SET Activo = CASE
+                WHEN Estado <> ? THEN 0
+                WHEN Estado = ? THEN 1
+                ELSE Activo
+            END
+    WHERE Extension = ?;
     `;
-    console.log('Parametros:',[ext,estado]);
+    console.log('Parametros:',[estado,estado2,ext,]);
     db2.query(
         sql,
         [
-            ext,estado
+            estado,estado2,ext,
         ],
          (err, id) => {
             if (err) {
@@ -410,7 +413,7 @@ User.updateestados1=(db2,ext,estado, result)=>{
 
 }
 //Query para la actualización del estado Activo 1
-User.updateestados=(db2,ext1,estado1, result)=>{
+/* User.updateestados=(db2,ext1,estado1, result)=>{
     const sql = `
     Update DireccionamientosEstadoUsuario
     Set Activo=1
@@ -433,7 +436,7 @@ User.updateestados=(db2,ext1,estado1, result)=>{
         }
     )
 
-} 
+}  */
 
 
 

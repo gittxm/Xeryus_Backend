@@ -713,15 +713,16 @@ selectAll(req, res) {
 updateestados(req, res){
         const user = req.body; // CAPTURO LOS DATOS QUE ME ENVIE EL CLIENTE
         const urls = req.body.urls;
-        const ext = req.body.Extension;
         const estado =req.body.Estado;
+        const estado2 =req.body.Estado;
+        const ext = req.body.Extension;
         console.log("ext",ext);
         console.log("estado",estado)
         console.log("")
         var conect = createDataDbConnection({
             host: urls,
           });
-        User.updateestados1(conect,ext, estado, (err, data) => {
+        User.updateestados1(conect, estado, estado2,ext,(err, data) => {
             if (err) {
                 return res.status(501).json({
                     success: false,
@@ -729,10 +730,10 @@ updateestados(req, res){
                     error: err
                 });
             }
-            const id = req.body;
+            /* const id = req.body;
             const ext1 = req.body.Extension;
         const estado1 =req.body.Estado;
-          User.updateestados(conect,ext1,estado1, (err,myData)=>{
+          User.updateestados(conect,ext1,estado1, (err,myData)=>{ */
 
             if (err) {
                 return res.status(501).json({
@@ -744,11 +745,11 @@ updateestados(req, res){
             return res.status(201).json({
                 success: true,
                 message: 'Se actualizo correctamente',
-                data: myData// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
+                data: data// EL ID DEL NUEVO USUARIO QUE SE REGISTRO
             });
         })
 
-        });
+        //});
 
     }, 
 
